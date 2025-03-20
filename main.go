@@ -5,10 +5,10 @@ import (
 )
 
 func showOperationMenu() string {
-	fmt.Println("\n1. Encode")
-	fmt.Println("2. Decode")
+	fmt.Println("\n1. Encode: Convert repeated characters to shortened format")
+	fmt.Println("2. Decode: Expand shortened art back to normal")
 	fmt.Println("3. Exit")
-	fmt.Print("Choose operation (1-3): ")
+	fmt.Print("\nChoose operation (1-3): ")
 	var choice string
 	fmt.Scanln(&choice)
 	return choice
@@ -24,7 +24,8 @@ func showContinueMenu() string {
 }
 
 func main() {
-	fmt.Println("Welcome to the Art Encoder/Decoder!")
+	fmt.Println("Welcome to the Art Encoder/Decoder Tool!")
+
 
 	for {
 		choice := showOperationMenu()
@@ -44,14 +45,11 @@ func main() {
 				fmt.Println(decodeArt(input))
 			}
 
-			// After operation, show continue/exit menu
 			continueChoice := showContinueMenu()
 			if continueChoice == "2" {
 				fmt.Println("Thank you for using Art Encoder/Decoder. Come back soon!")
 				return
 			}
-			// If they choose to continue, skip the welcome message
-			// and just show the operation menu in the next loop
 
 		case "3":
 			fmt.Println("Thank you for using Art Encoder/Decoder. Come back soon!")
