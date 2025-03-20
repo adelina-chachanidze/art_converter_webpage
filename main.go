@@ -2,45 +2,63 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"regexp"
-	"strconv"
-	"strings"
 )
 
-func decodeArt(input string) string {
-	// Regular expression to match patterns like [5 D]
-	pattern := regexp.MustCompile(`\[(\d+)\s+([^\]]+)\]`)
+func showOperationMenu() string {
+	fmt.Println("\n1. Encode")
+	fmt.Println("2. Decode")
+	fmt.Println("3. Exit")
+	fmt.Print("Choose operation (1-3): ")
+	var choice string
+	fmt.Scanln(&choice)
+	return choice
+}
 
-	// Replace all matches with the expanded string
-	result := pattern.ReplaceAllStringFunc(input, func(match string) string {
-		// Extract the number and character from the match
-		parts := pattern.FindStringSubmatch(match)
-		if len(parts) != 3 {
-			return match
-		}
-
-		// Convert the number string to integer
-		count, err := strconv.Atoi(parts[1])
-		if err != nil {
-			return match
-		}
-
-		// Repeat the character count times
-		return strings.Repeat(parts[2], count)
-	})
-
-	return result
+func showContinueMenu() string {
+	fmt.Println("\n1. Continue")
+	fmt.Println("2. Exit")
+	fmt.Print("Choose option (1-2): ")
+	var choice string
+	fmt.Scanln(&choice)
+	return choice
 }
 
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Println("Usage: go run . \"[pattern]\"")
-		fmt.Println("Example: go run . \"[5 #][5 -_]-[5 #]\"")
-		os.Exit(1)
-	}
+	fmt.Println("Welcome to the Art Encoder/Decoder!")
 
-	input := os.Args[1]
-	result := decodeArt(input)
-	fmt.Println(result)
+	for {
+		choice := showOperationMenu()
+
+		switch choice {
+		case "1", "2":
+			var input string
+			if choice == "1" {
+				fmt.Print("Enter the text to encode: ")
+				fmt.Scanln(&input)
+				fmt.Println("\nEncoded result:")
+				fmt.Println(encodeArt(input))
+			} else {
+				fmt.Print("Enter the pattern to decode: ")
+				fmt.Scanln(&input)
+				fmt.Println("\nDecoded result:")
+				fmt.Println(decodeArt(input))
+			}
+
+			// After operation, show continue/exit menu
+			continueChoice := showContinueMenu()
+			if continueChoice == "2" {
+				fmt.Println("Thank you for using Art Encoder/Decoder. Come back soon!")
+				return
+			}
+			// If they choose to continue, skip the welcome message
+			// and just show the operation menu in the next loop
+
+		case "3":
+			fmt.Println("Thank you for using Art Encoder/Decoder. Come back soon!")
+			return
+
+		default:
+			fmt.Println("Invalid choice. Please select 1, 2, or 3.")
+		}
+	}
 }
