@@ -4,15 +4,16 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
 )
 
 func decodeArt(input string) string {
-	// Regular expression to match patterns like [3a]
-	pattern := regexp.MustCompile(`\[(\d+)([^\]]+)\]`)
+	// Regular expression to match patterns like [5 D]
+	pattern := regexp.MustCompile(`\[(\d+)\s+([^\]]+)\]`)
 
 	// Replace all matches with the expanded string
 	result := pattern.ReplaceAllStringFunc(input, func(match string) string {
-		// Extract the number and pattern from the match
+		// Extract the number and character from the match
 		parts := pattern.FindStringSubmatch(match)
 		if len(parts) != 3 {
 			return match
@@ -24,7 +25,7 @@ func decodeArt(input string) string {
 			return match
 		}
 
-		// Repeat the pattern count times
+		// Repeat the character count times
 		return strings.Repeat(parts[2], count)
 	})
 
@@ -34,3 +35,4 @@ func decodeArt(input string) string {
 func encodeArt(input string) string {
 	return "Goodbye"
 }
+

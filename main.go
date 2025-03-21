@@ -1,8 +1,31 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 )
+
+func readMultiLineInput() string {
+	var inputLines []string
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		line := scanner.Text()
+		// Empty line signals end of input
+		if line == "" {
+			break
+		}
+		inputLines = append(inputLines, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error reading input:", err)
+		return ""
+	}
+
+	return strings.Join(inputLines, "\n")
+}
 
 func showOperationMenu() string {
 	fmt.Println("\n1. Encode: Convert repeated characters to shortened format")
@@ -26,21 +49,19 @@ func showContinueMenu() string {
 func main() {
 	fmt.Println("Welcome to the Art Encoder/Decoder Tool!")
 
-
 	for {
 		choice := showOperationMenu()
 
 		switch choice {
 		case "1", "2":
-			var input string
 			if choice == "1" {
-				fmt.Print("Enter the text to encode: ")
-				fmt.Scanln(&input)
+				fmt.Println("Enter the text to encode (press Enter twice to finish):")
+				input := readMultiLineInput()
 				fmt.Println("\nEncoded result:")
 				fmt.Println(encodeArt(input))
 			} else {
-				fmt.Print("Enter the pattern to decode: ")
-				fmt.Scanln(&input)
+				fmt.Println("Enter the pattern to decode (press Enter twice to finish):")
+				input := readMultiLineInput()
 				fmt.Println("\nDecoded result:")
 				fmt.Println(decodeArt(input))
 			}
