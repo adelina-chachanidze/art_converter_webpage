@@ -1,38 +1,89 @@
 package main
 
 import (
+	//"bufio"
+	//"fmt"
+	//"os"
 	"regexp"
 	"strconv"
 	"strings"
-
 )
 
-func decodeArt(input string) string {
-	// Regular expression to match patterns like [5 D]
-	pattern := regexp.MustCompile(`\[(\d+)\s+([^\]]+)\]`)
-
-	// Replace all matches with the expanded string
-	result := pattern.ReplaceAllStringFunc(input, func(match string) string {
-		// Extract the number and character from the match
-		parts := pattern.FindStringSubmatch(match)
-		if len(parts) != 3 {
-			return match
+/*func main() {
+	// Read input from terminal
+	var inputLines []string
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		line := scanner.Text()
+		// Empty line signals end of input
+		if line == "" {
+			break
 		}
+		inputLines = append(inputLines, line)
+	}
 
-		// Convert the number string to integer
-		count, err := strconv.Atoi(parts[1])
-		if err != nil {
-			return match
-		}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error reading input:", err)
+		return
+	}
 
-		// Repeat the character count times
-		return strings.Repeat(parts[2], count)
-	})
+	// Process input
+	output := processInput(strings.Join(inputLines, "\n"))
+	
+	// Print to terminal
+	fmt.Println(output)
+}*/
 
-	return result
+func processInput(input string) string {
+	lines := strings.Split(input, "\n")
+	var outputLines []string
+
+	for _, line := range lines {
+		processedLine := processLine(line)
+		outputLines = append(outputLines, processedLine)
+	}
+
+	return strings.Join(outputLines, "\n")
 }
 
-func encodeArt(input string) string {
-	return "Goodbye"
-}
+func processLine(line string) string {
+	var result strings.Builder
+	current := 0
 
+	for current < len(line) {
+		// Look for patterns like [19  ]__
+		spaceCountMatch := regexp.MustCompile(`\[(\d+)\s+\]`).FindStringSubmatchIndex(line[current:])
+		if spaceCountMatch != nil && spaceCountMatch[0] == 0 {
+			countStr := line[current+spaceCountMatch[2]:current+spaceCountMatch[3]]
+			count, _ := strconv.Atoi(countStr)
+			result.WriteString(strings.Repeat(" ", count))
+			current += spaceCountMatch[1]
+			continue
+		}
+
+		// Look for patterns like [9 o]
+		charCountMatch := regexp.MustCompile(`\[(\d+)\s+([^]]+)\]`).FindStringSubmatchIndex(line[current:])
+		if charCountMatch != nil && charCountMatch[0] == 0 {
+			countStr := line[current+charCountMatch[2]:current+charCountMatch[3]]
+			char := line[current+charCountMatch[4]:current+charCountMatch[5]]
+			count, _ := strconv.Atoi(countStr)
+			result.WriteString(strings.Repeat(char, count))
+			current += charCountMatch[1]
+			continue
+		}
+
+		// For any other characters (like *, "", etc.)
+		if current < len(line) {
+			result.WriteByte(line[current])
+			current++
+		}
+	}
+
+	// Post-process any special patterns
+	processed := result.String()
+	
+	// Process double quotes
+	processed = strings.ReplaceAll(processed, "\"\"", "\"\"")
+	
+	return processed
+}
