@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -40,5 +41,57 @@ func decodeArt(input string) string {
 }
 
 func encodeArt(input string) string {
-	return "encoding is under construction"
+	// Split input into lines
+	lines := strings.Split(input, "\n")
+	var result []string
+
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		var encoded strings.Builder
+		count := 1
+		currentChar := line[0]
+
+		// Handle the case where line is all the same character
+		allSame := true
+		for i := 1; i < len(line); i++ {
+			if line[i] != currentChar {
+				allSame = false
+				break
+			}
+		}
+		if allSame && len(line) > 0 {
+			result = append(result, fmt.Sprintf("[%d %c]", len(line), currentChar))
+			continue
+		}
+
+		// Process character by character
+		for i := 1; i <= len(line); i++ {
+			// If we're at the end or found a different character
+			if i == len(line) || line[i] != currentChar {
+				// If count is greater than 3, use compression
+				if count > 3 {
+					encoded.WriteString(fmt.Sprintf("[%d %c]", count, currentChar))
+				} else {
+					// Otherwise write characters directly
+					for j := 0; j < count; j++ {
+						encoded.WriteByte(currentChar)
+					}
+				}
+
+				if i < len(line) {
+					count = 1
+					currentChar = line[i]
+				}
+			} else {
+				count++
+			}
+		}
+
+		result = append(result, encoded.String())
+	}
+
+	return strings.Join(result, "\n")
 }
