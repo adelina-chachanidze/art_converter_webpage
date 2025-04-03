@@ -43,6 +43,9 @@ func showContinueMenu() string {
 	fmt.Print("Choose option (1-2): ")
 	var choice string
 	fmt.Scanln(&choice)
+	if choice == "1" {
+		fmt.Print("\033[H\033[2J") // ANSI escape codes to clear screen
+	}
 	return choice
 }
 
