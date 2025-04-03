@@ -41,7 +41,6 @@ func decodeArt(input string) string {
 }
 
 func encodeArt(input string) string {
-	// Split input into lines
 	lines := strings.Split(input, "\n")
 	var result []string
 
@@ -51,43 +50,60 @@ func encodeArt(input string) string {
 		}
 
 		var encoded strings.Builder
-		count := 1
-		currentChar := line[0]
+		i := 0
 
-		// Handle the case where line is all the same character
-		allSame := true
-		for i := 1; i < len(line); i++ {
-			if line[i] != currentChar {
-				allSame = false
-				break
-			}
+		// Count leading spaces
+		spaceCount := 0
+		for i < len(line) && line[i] == ' ' {
+			spaceCount++
+			i++
 		}
-		if allSame && len(line) > 0 {
-			result = append(result, fmt.Sprintf("[%d %c]", len(line), currentChar))
-			continue
+		if spaceCount > 0 {
+			encoded.WriteString(fmt.Sprintf("[%d  ]", spaceCount))
 		}
 
-		// Process character by character
-		for i := 1; i <= len(line); i++ {
-			// If we're at the end or found a different character
-			if i == len(line) || line[i] != currentChar {
-				// If count is greater than 3, use compression
-				if count > 3 {
-					encoded.WriteString(fmt.Sprintf("[%d %c]", count, currentChar))
-				} else {
-					// Otherwise write characters directly
-					for j := 0; j < count; j++ {
-						encoded.WriteByte(currentChar)
+		// Process the rest of the line
+		for i < len(line) {
+			// Check for repeating patterns first
+			if i+1 < len(line) && (line[i] == '|' || line[i] == '^') {
+				pattern := ""
+				count := 0
+
+				// Try to find repeating pattern
+				if i+1 < len(line) {
+					pattern = line[i : i+2]
+					for j := i; j < len(line)-1; j += 2 {
+						if j+1 >= len(line) || line[j:j+2] != pattern {
+							break
+						}
+						count++
 					}
 				}
 
-				if i < len(line) {
-					count = 1
-					currentChar = line[i]
+				if count > 2 {
+					encoded.WriteString(fmt.Sprintf("[%d %s]", count, pattern))
+					i += count * 2
+					continue
 				}
-			} else {
-				count++
 			}
+
+			// Handle regular character sequences
+			char := line[i]
+			count := 1
+			j := i + 1
+			for j < len(line) && line[j] == char {
+				count++
+				j++
+			}
+
+			if count > 3 || (char == ' ' && count > 1) || char == '#' {
+				encoded.WriteString(fmt.Sprintf("[%d %c]", count, char))
+			} else {
+				for k := 0; k < count; k++ {
+					encoded.WriteByte(char)
+				}
+			}
+			i = j
 		}
 
 		result = append(result, encoded.String())
