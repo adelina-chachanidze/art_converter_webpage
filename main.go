@@ -57,6 +57,13 @@ func errorsDecoding(input string) error {
 	if strings.TrimSpace(input) == "" {
 		return fmt.Errorf("\033[31merror: input is empty, please provide some text to decode\033[0m")
 	}
+
+	// Count brackets in the input
+	bracketCount := strings.Count(input, "[") + strings.Count(input, "]")
+	if bracketCount%2 != 0 {
+		return fmt.Errorf("\033[31merror: invalid format, extra or missing brackets\033[0m")
+	}
+
 	return nil
 }
 
