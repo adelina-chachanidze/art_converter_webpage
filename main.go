@@ -59,14 +59,46 @@ func errorsDecoding(input string) error {
 	}
 
 	var openBrackets int
+	var bracketContent strings.Builder
+
 	for _, char := range input {
 		if char == '[' {
 			openBrackets++
+			bracketContent.Reset()
 		} else if char == ']' {
 			if openBrackets == 0 {
 				return fmt.Errorf("\033[31merror: found ']' without matching '['\033[0m")
 			}
 			openBrackets--
+
+			// Validate content between brackets
+			content := bracketContent.String()
+
+			// Find the first space
+			spaceIndex := strings.Index(content, " ")
+			if spaceIndex == -1 {
+				return fmt.Errorf("\033[31merror: invalid format in brackets, must be 'number space symbol(s)'\033[0m")
+			}
+
+			// Check if first part is a number
+			number := content[:spaceIndex]
+			if number == "" {
+				return fmt.Errorf("\033[31merror: first part in brackets must be a number\033[0m")
+			}
+			for _, digit := range number {
+				if digit < '0' || digit > '9' {
+					return fmt.Errorf("\033[31merror: first part in brackets must be a number\033[0m")
+				}
+			}
+
+			// Everything after the first space is the third argument
+			// If it's empty or just spaces, that's still valid as spaces are the third argument
+			if spaceIndex == len(content)-1 {
+				return fmt.Errorf("\033[31merror: missing third argument after space in brackets\033[0m")
+			}
+
+		} else if openBrackets > 0 {
+			bracketContent.WriteRune(char)
 		}
 	}
 
