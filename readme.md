@@ -16,7 +16,7 @@ Ensure you have Go installed on your system, then:
 
 ```bash
 # Clone the repository
-git clone [your-repo-url]
+git clone https://gitea.koodsisu.fi/adelinachachanidze/art.git
 cd art-encoder-decoder
 
 # Run the program
