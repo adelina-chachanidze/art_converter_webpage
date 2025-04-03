@@ -58,10 +58,20 @@ func errorsDecoding(input string) error {
 		return fmt.Errorf("\033[31merror: input is empty, please provide some text to decode\033[0m")
 	}
 
-	// Count brackets in the input
-	bracketCount := strings.Count(input, "[") + strings.Count(input, "]")
-	if bracketCount%2 != 0 {
-		return fmt.Errorf("\033[31merror: invalid format, extra or missing brackets\033[0m")
+	var openBrackets int
+	for _, char := range input {
+		if char == '[' {
+			openBrackets++
+		} else if char == ']' {
+			if openBrackets == 0 {
+				return fmt.Errorf("\033[31merror: found ']' without matching '['\033[0m")
+			}
+			openBrackets--
+		}
+	}
+
+	if openBrackets > 0 {
+		return fmt.Errorf("\033[31merror: found '[' without matching ']'\033[0m")
 	}
 
 	return nil
