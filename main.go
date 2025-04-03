@@ -28,8 +28,8 @@ func readMultiLineInput() string {
 }
 
 func showOperationMenu() string {
-	fmt.Println("\n1. Encode: Convert repeated characters to shortened format")
-	fmt.Println("2. Decode: Expand shortened art back to normal")
+	fmt.Println("\n1. Encode: Convert art to compressed format")
+	fmt.Println("2. Decode: Expand your compressed art back to normal")
 	fmt.Println("3. Exit")
 	fmt.Print("\nChoose operation (1-3): ")
 	var choice string
@@ -46,6 +46,20 @@ func showContinueMenu() string {
 	return choice
 }
 
+func errorsEncoding(input string) error {
+	if strings.TrimSpace(input) == "" {
+		return fmt.Errorf("\033[31merror: input is empty, please provide some text to encode\033[0m")
+	}
+	return nil
+}
+
+func errorsDecoding(input string) error {
+	if strings.TrimSpace(input) == "" {
+		return fmt.Errorf("\033[31merror: input is empty, please provide some text to decode\033[0m")
+	}
+	return nil
+}
+
 func main() {
 	fmt.Println("Welcome to the Art Encoder/Decoder Tool!")
 
@@ -55,13 +69,34 @@ func main() {
 		switch choice {
 		case "1", "2":
 			if choice == "1" {
-				fmt.Println("Enter the text to encode (press Enter twice to finish):")
-				input := readMultiLineInput()
+				var input string
+				for {
+					fmt.Println("Enter the text to encode (press Enter twice to finish):")
+					input = readMultiLineInput()
+
+					if err := errorsEncoding(input); err != nil {
+						fmt.Println(err)
+						continue
+					}
+					break
+				}
+
+				encoded := encodeArt(input)
 				fmt.Println("\nEncoded result:")
-				fmt.Println(encodeArt(input))
+				fmt.Println(encoded)
 			} else {
-				fmt.Println("Enter the pattern to decode (press Enter twice to finish):")
-				input := readMultiLineInput()
+				var input string
+				for {
+					fmt.Println("Enter the pattern to decode (press Enter twice to finish):")
+					input = readMultiLineInput()
+
+					if err := errorsDecoding(input); err != nil {
+						fmt.Println(err)
+						continue
+					}
+					break
+				}
+
 				fmt.Println("\nDecoded result:")
 				fmt.Println(decodeArt(input))
 			}
