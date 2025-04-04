@@ -96,12 +96,10 @@ func encodeArt(input string) string {
 				j++
 			}
 
-			if count > 3 || (char == ' ' && count > 1) || char == '#' {
+			if count >= 2 || char == '#' {
 				encoded.WriteString(fmt.Sprintf("[%d %c]", count, char))
 			} else {
-				for k := 0; k < count; k++ {
-					encoded.WriteByte(char)
-				}
+				encoded.WriteByte(char)
 			}
 			i = j
 		}
