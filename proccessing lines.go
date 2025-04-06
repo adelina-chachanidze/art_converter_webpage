@@ -9,31 +9,6 @@ import (
 	"strings"
 )
 
-/*func main() {
-	// Read input from terminal
-	var inputLines []string
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		line := scanner.Text()
-		// Empty line signals end of input
-		if line == "" {
-			break
-		}
-		inputLines = append(inputLines, line)
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "Error reading input:", err)
-		return
-	}
-
-	// Process input
-	output := processInput(strings.Join(inputLines, "\n"))
-	
-	// Print to terminal
-	fmt.Println(output)
-}*/
-
 func processInput(input string) string {
 	lines := strings.Split(input, "\n")
 	var outputLines []string
