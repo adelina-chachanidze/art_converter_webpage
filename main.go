@@ -164,7 +164,7 @@ func main() {
 			return
 
 		default:
-			fmt.Println("Invalid choice. Please select 1, 2, or 3.")
+			fmt.Println("\033[31mInvalid choice. Please select 1, 2, or 3.\033[0m")
 		}
 	}
 }

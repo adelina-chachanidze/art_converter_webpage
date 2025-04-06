@@ -8,7 +8,7 @@ import (
 )
 
 func decodeArt(input string) string {
-	// Regular expression to match patterns like [22  ] or [4 _]
+	// Regular expression to match patterns like [22  ] or [4 h&]
 	pattern := regexp.MustCompile(`\[(\d+)([^]]+)\]`)
 
 	// Replace all matches with the expanded string
