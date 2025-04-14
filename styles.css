@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
+    background-color: #d3d9ce;
     margin: 0;
     padding: 0;
     display: flex;
@@ -11,7 +11,7 @@ body {
 
 .container {
     text-align: center;
-    background-color: #fff;
+    background-color: #f1f1f1;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -22,12 +22,17 @@ body {
 h1 {
     color: #333;
     margin-bottom: 20px;
+    text-transform: uppercase;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
 }
 
 h2 {
     color: #555;
     font-size: 1.2rem;
     margin-bottom: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 100;
 }
 
 .tabs {
@@ -48,7 +53,7 @@ h2 {
 }
 
 .tab-button.active {
-    background-color: #007bff;
+    background-color: #9FB68B;
     color: white;
 }
 
@@ -73,7 +78,7 @@ textarea {
 
 button {
     padding: 10px 25px;
-    background-color: #007bff;
+    background-color: #9FB68B;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -82,7 +87,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #658447;
 }
 
 .result {
