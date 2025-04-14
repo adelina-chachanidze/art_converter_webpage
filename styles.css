@@ -1,35 +1,43 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #d3d9ce;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('https://images.unsplash.com/photo-1649676145667-6a07b10a3c99?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    color: #333;
 }
 
 .container {
     text-align: center;
-    background-color: #f1f1f1;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 800px;
+    background-color: #D6FFE7
+    ;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 85%;
+    max-width: 850px;
+    transition: all 0.3s ease;
 }
 
 h1 {
-    color: #333;
-    margin-bottom: 20px;
-    text-transform: uppercase;
+    color: #2c3e50;
+    margin-bottom: 25px;
     font-family: 'Poppins', sans-serif;
     font-weight: 800;
+    font-size: 2.2rem;
+    text-transform: uppercase;
 }
 
 h2 {
     color: #555;
-    font-size: 1.2rem;
+    font-size: 1rem;
     margin-bottom: 15px;
     font-family: 'Poppins', sans-serif;
     font-weight: 100;
@@ -78,7 +86,8 @@ textarea {
 
 button {
     padding: 10px 25px;
-    background-color: #9FB68B;
+    background-color: #5260FF
+    ;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -87,7 +96,7 @@ button {
 }
 
 button:hover {
-    background-color: #658447;
+    background-color: #1429FF;
 }
 
 .result {
@@ -129,6 +138,12 @@ button:hover {
     color: #333;
 }
 
+.copy-button:hover {
+    background-color: #808080;
+    color: white;
+    transform: translateY(-1px);
+}
+
 .copy-form {
     margin: 0;
     padding: 0;
@@ -144,7 +159,7 @@ button:hover {
     position: relative;
     width: 320px;
     height: 50px;
-    background-color: #f5f7fa;
+    background-color: #fff15c;
     border-radius: 25px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     display: flex;
@@ -157,7 +172,7 @@ button:hover {
     justify-content: center;
     z-index: 1;
     transition: color 0.3s ease;
-    color: #7f8c8d;
+    color: #5C6AFF;
     text-decoration: none;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
@@ -172,7 +187,7 @@ button:hover {
     top: 5px;
     width: calc(50% - 10px);
     height: calc(100% - 10px);
-    background-color: #9FB68B;
+    background-color: #F15CFF;
     border-radius: 22px;
     transition: transform 0.3s ease;
 }
