@@ -41,14 +41,12 @@ func decodeArt(input string) string {
 }
 
 func encodeArt(input string) string {
+	// Only trim newlines, preserve spaces
+	input = strings.Trim(input, "\n")
 	lines := strings.Split(input, "\n")
 	var result []string
 
 	for _, line := range lines {
-		if line == "" {
-			continue
-		}
-
 		var encoded strings.Builder
 		i := 0
 

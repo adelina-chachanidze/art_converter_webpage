@@ -92,10 +92,16 @@ button:hover {
     border-radius: 4px;
     background-color: #f8f8f8;
     text-align: left;
-    white-space: pre-wrap;
-    font-family: monospace;
     min-height: 100px;
     display: none;
+    overflow-x: auto;
+}
+
+.result pre {
+    white-space: pre;
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
 }
 
 .result.visible {

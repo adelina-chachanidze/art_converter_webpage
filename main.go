@@ -144,6 +144,9 @@ func handleDecoder(w http.ResponseWriter, r *http.Request) {
 	// Process valid encoded strings
 	decoded := decodeArt(encodedString)
 
+	// Remove only leading and trailing newlines, but preserve spaces
+	decoded = strings.Trim(decoded, "\n")
+
 	// The WriteHeader must be called before any Write operation
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusAccepted)
@@ -196,6 +199,9 @@ func handleEncode(w http.ResponseWriter, r *http.Request) {
 
 	encoded := encodeArt(input)
 
+	// Remove only leading and trailing newlines, but preserve spaces
+	encoded = strings.Trim(encoded, "\n")
+
 	tmpl, err := template.ParseFiles("index.html")
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
@@ -225,6 +231,9 @@ func handleDecode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	decoded := decodeArt(input)
+
+	// Remove only leading and trailing newlines, but preserve spaces
+	decoded = strings.Trim(decoded, "\n")
 
 	tmpl, err := template.ParseFiles("decode.html")
 	if err != nil {
