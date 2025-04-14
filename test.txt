@@ -1,2 +1,7 @@
-shshshhs
-test3t 
+The GET / endpoint returns HTTP200
+The POST /decoder endpoint accepts an encoded string
+The GET / endpoint returns the main page of the web interface
+The POST /decoder endpoint returns HTTP202 for valid encoded strings
+The POST /decoder endpoint returns HTTP400 for malformed encoded strings
+The README file at the root of the project describes how it should be built, and how to run server
+The web interface reloads to show the rendered text-based art after pressing the submit button.

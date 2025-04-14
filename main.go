@@ -1,52 +1,19 @@
+// This file is renamed to cli.go to separate CLI and server functionalities.
+
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"html/template"
+	"net/http"
 	"os"
 	"strings"
 )
 
-func readMultiLineInput() string {
-	var inputLines []string
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		line := scanner.Text()
-		// Empty line signals end of input
-		if line == "" {
-			break
-		}
-		inputLines = append(inputLines, line)
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "Error reading input:", err)
-		return ""
-	}
-
-	return strings.Join(inputLines, "\n")
-}
-
-func showOperationMenu() string {
-	fmt.Println("\n1. Encode: Convert art to compressed format")
-	fmt.Println("2. Decode: Expand your compressed art back to normal")
-	fmt.Println("3. Exit")
-	fmt.Print("\nChoose operation (1-3): ")
-	var choice string
-	fmt.Scanln(&choice)
-	return choice
-}
-
-func showContinueMenu() string {
-	fmt.Println("\n1. Continue")
-	fmt.Println("2. Exit")
-	fmt.Print("Choose option (1-2): ")
-	var choice string
-	fmt.Scanln(&choice)
-	if choice == "1" {
-		fmt.Print("\033[H\033[2J") // ANSI escape codes to clear screen
-	}
-	return choice
+// Data structure for passing to templates
+type PageData struct {
+	EncodedResult string
+	DecodedResult string
 }
 
 func errorsEncoding(input string) error {
@@ -113,58 +80,107 @@ func errorsDecoding(input string) error {
 }
 
 func main() {
-	fmt.Println("Welcome to the Art Encoder/Decoder Tool!")
+	// Create a file server to serve static files
+	fs := http.FileServer(http.Dir("./"))
+	http.Handle("/styles.css", fs)
 
-	for {
-		choice := showOperationMenu()
+	// Define route handlers
+	http.HandleFunc("/", handleEncodePage)
+	http.HandleFunc("/decode-page", handleDecodePage)
+	http.HandleFunc("/encode", handleEncode)
+	http.HandleFunc("/decode", handleDecode)
 
-		switch choice {
-		case "1", "2":
-			if choice == "1" {
-				var input string
-				for {
-					fmt.Println("Enter the text to encode (press Enter twice to finish):")
-					input = readMultiLineInput()
-
-					if err := errorsEncoding(input); err != nil {
-						fmt.Println(err)
-						continue
-					}
-					break
-				}
-
-				encoded := encodeArt(input)
-				fmt.Println("\nEncoded result:")
-				fmt.Println(encoded)
-			} else {
-				var input string
-				for {
-					fmt.Println("Enter the pattern to decode (press Enter twice to finish):")
-					input = readMultiLineInput()
-
-					if err := errorsDecoding(input); err != nil {
-						fmt.Println(err)
-						continue
-					}
-					break
-				}
-
-				fmt.Println("\nDecoded result:")
-				fmt.Println(decodeArt(input))
-			}
-
-			continueChoice := showContinueMenu()
-			if continueChoice == "2" {
-				fmt.Println("Thank you for using Art Encoder/Decoder. Come back soon!")
-				return
-			}
-
-		case "3":
-			fmt.Println("Thank you for using Art Encoder/Decoder. Come back soon!")
-			return
-
-		default:
-			fmt.Println("\033[31mInvalid choice. Please select 1, 2, or 3.\033[0m")
-		}
+	// Start the server
+	fmt.Println("Server is running at http://localhost:8080")
+	fmt.Println("Press Ctrl+C to stop the server...")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+		os.Exit(1)
 	}
+}
+
+func handleEncodePage(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("index.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, PageData{})
+}
+
+func handleDecodePage(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("decode.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, PageData{})
+}
+
+func handleEncode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		return
+	}
+
+	input := r.FormValue("input")
+
+	if err := errorsEncoding(input); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	encoded := encodeArt(input)
+
+	tmpl, err := template.ParseFiles("index.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, PageData{EncodedResult: encoded})
+}
+
+func handleDecode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		return
+	}
+
+	input := r.FormValue("input")
+
+	if err := errorsDecoding(input); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	decoded := decodeArt(input)
+
+	tmpl, err := template.ParseFiles("decode.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, PageData{DecodedResult: decoded})
 }

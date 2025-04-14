@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Encoder/Decoder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ASCII Art Encoder/Decoder</h1>
+        
+        <div class="tabs">
+            <a href="/" class="tab-button">Encode</a>
+            <a href="/decode-page" class="tab-button active">Decode</a>
+        </div>
+        
+        <div class="form-container active">
+            <h2>Decode: Expand compressed art back to normal</h2>
+            <form action="/decode" method="post">
+                <textarea name="input" placeholder="Enter your compressed art here to expand it..." rows="10"></textarea>
+                <button type="submit">Decode</button>
+            </form>
+            
+            {{if .DecodedResult}}
+            <div class="result visible">
+                {{.DecodedResult}}
+            </div>
+            {{end}}
+        </div>
+    </div>
+</body>
+</html> 
