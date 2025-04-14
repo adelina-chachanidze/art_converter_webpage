@@ -1,5 +1,3 @@
-// This file is renamed to cli.go to separate CLI and server functionalities.
-
 package main
 
 import (
@@ -85,7 +83,8 @@ func main() {
 	http.Handle("/styles.css", fs)
 
 	// Define route handlers
-	http.HandleFunc("/", handleEncodePage)
+	http.HandleFunc("/", handleMainPage)
+	http.HandleFunc("/decoder", handleDecoder)
 	http.HandleFunc("/decode-page", handleDecodePage)
 	http.HandleFunc("/encode", handleEncode)
 	http.HandleFunc("/decode", handleDecode)
@@ -98,6 +97,57 @@ func main() {
 		fmt.Println("Error starting server:", err)
 		os.Exit(1)
 	}
+}
+
+// handleMainPage returns the main page of the web interface with a 200 status
+func handleMainPage(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Return HTTP 200 status for GET requests
+	if r.Method == http.MethodGet {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	tmpl, err := template.ParseFiles("index.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, PageData{})
+}
+
+// handleDecoder handles POST requests to /decoder endpoint
+func handleDecoder(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		return
+	}
+
+	encodedString := r.FormValue("input")
+
+	// Check for malformed encoded strings
+	if err := errorsDecoding(encodedString); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Process valid encoded strings
+	decoded := decodeArt(encodedString)
+
+	// The WriteHeader must be called before any Write operation
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusAccepted)
+	w.Write([]byte(decoded))
 }
 
 func handleEncodePage(w http.ResponseWriter, r *http.Request) {
