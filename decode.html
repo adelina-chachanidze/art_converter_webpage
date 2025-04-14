@@ -23,7 +23,13 @@
             </form>
             
             {{if .DecodedResult}}
-            <div class="result visible"><pre>{{.DecodedResult}}</pre></div>
+            <div class="result visible">
+                <form action="/copy-decoded" method="post" class="copy-form">
+                    <input type="hidden" name="content" value="{{.DecodedResult}}">
+                    <button type="submit" class="copy-button">Save as txt file</button>
+                </form>
+                <pre>{{.DecodedResult}}</pre>
+            </div>
             {{end}}
         </div>
     </div>

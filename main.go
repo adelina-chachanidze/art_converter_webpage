@@ -88,6 +88,8 @@ func main() {
 	http.HandleFunc("/decode-page", handleDecodePage)
 	http.HandleFunc("/encode", handleEncode)
 	http.HandleFunc("/decode", handleDecode)
+	http.HandleFunc("/copy-encoded", handleCopyEncoded)
+	http.HandleFunc("/copy-decoded", handleCopyDecoded)
 
 	// Start the server
 	fmt.Println("Server is running at http://localhost:8080")
@@ -242,4 +244,52 @@ func handleDecode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl.Execute(w, PageData{DecodedResult: decoded})
+}
+
+// Handler for copying encoded result
+func handleCopyEncoded(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		return
+	}
+
+	content := r.FormValue("content")
+
+	// Set headers to tell the browser this is a text download
+	w.Header().Set("Content-Disposition", "attachment; filename=encoded_art.txt")
+	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(content)))
+
+	// Write the content
+	w.Write([]byte(content))
+}
+
+// Handler for copying decoded result
+func handleCopyDecoded(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		return
+	}
+
+	content := r.FormValue("content")
+
+	// Set headers to tell the browser this is a text download
+	w.Header().Set("Content-Disposition", "attachment; filename=decoded_art.txt")
+	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(content)))
+
+	// Write the content
+	w.Write([]byte(content))
 }
