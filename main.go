@@ -17,7 +17,7 @@ type PageData struct {
 
 func errorsEncoding(input string) error {
 	if strings.TrimSpace(input) == "" {
-		return fmt.Errorf("Error: Input is empty, please provide some text to encode")
+		return fmt.Errorf("Error: Input is empty, please provide some art to encode")
 	}
 	return nil
 }
@@ -84,9 +84,16 @@ func errorsDecoding(input string) error {
 }
 
 func main() {
-	// Create a file server to serve static files
-	fs := http.FileServer(http.Dir("./"))
-	http.Handle("/styles.css", fs)
+	// Serve CSS file with proper content type
+	http.HandleFunc("/styles.css", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/css")
+		data, err := os.ReadFile("styles.css")
+		if err != nil {
+			http.Error(w, "Could not read CSS file", http.StatusInternalServerError)
+			return
+		}
+		w.Write(data)
+	})
 
 	// Define route handlers
 	http.HandleFunc("/", handleMainPage)

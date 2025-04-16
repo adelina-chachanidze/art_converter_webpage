@@ -16,8 +16,7 @@ body {
 
 .container {
     text-align: center;
-    background-color: #D6FFE7
-    ;
+    background-color: #D6FFE7;
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -86,8 +85,7 @@ textarea {
 
 button {
     padding: 10px 25px;
-    background-color: #5260FF
-    ;
+    background-color: #5260FF;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -198,4 +196,15 @@ button:hover {
 
 .toggle-slider.right {
     right: 5px;
+}
+
+.error-message {
+    color: #c62828 !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    background-color: rgba(255, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border-left: 4px solid #c62828;
 }
