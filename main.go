@@ -12,18 +12,19 @@ import (
 type PageData struct {
 	EncodedResult string
 	DecodedResult string
+	ErrorMessage  string
 }
 
 func errorsEncoding(input string) error {
 	if strings.TrimSpace(input) == "" {
-		return fmt.Errorf("\033[31merror: input is empty, please provide some text to encode\033[0m")
+		return fmt.Errorf("Error: Input is empty, please provide some text to encode")
 	}
 	return nil
 }
 
 func errorsDecoding(input string) error {
 	if strings.TrimSpace(input) == "" {
-		return fmt.Errorf("\033[31merror: input is empty, please provide some text to decode\033[0m")
+		return fmt.Errorf("Error: Input is empty, please provide some text to decode")
 	}
 
 	var openBrackets int
@@ -35,7 +36,7 @@ func errorsDecoding(input string) error {
 			bracketContent.Reset()
 		} else if char == ']' {
 			if openBrackets == 0 {
-				return fmt.Errorf("\033[31merror: found ']' without matching '['\033[0m")
+				return fmt.Errorf("Error: Found ']' without matching '['")
 			}
 			openBrackets--
 
@@ -45,24 +46,24 @@ func errorsDecoding(input string) error {
 			// Find the first space
 			spaceIndex := strings.Index(content, " ")
 			if spaceIndex == -1 {
-				return fmt.Errorf("\033[31merror: invalid format in brackets, must be 'number space symbol(s)'\033[0m")
+				return fmt.Errorf("Error: Invalid format in brackets, must be [number space symbol(s)], eg [8 #]")
 			}
 
 			// Check if first part is a number
 			number := content[:spaceIndex]
 			if number == "" {
-				return fmt.Errorf("\033[31merror: first part in brackets must be a number\033[0m")
+				return fmt.Errorf("Error: First part in brackets must be a number, eg [8 #]")
 			}
 			for _, digit := range number {
 				if digit < '0' || digit > '9' {
-					return fmt.Errorf("\033[31merror: first part in brackets must be a number\033[0m")
+					return fmt.Errorf("Error: First part in brackets must be a number, eg [8 #]")
 				}
 			}
 
 			// Everything after the first space is the third argument
 			// If it's empty or just spaces, that's still valid as spaces are the third argument
 			if spaceIndex == len(content)-1 {
-				return fmt.Errorf("\033[31merror: missing third argument after space in brackets\033[0m")
+				return fmt.Errorf("Error: Missing third argument after space in brackets")
 			}
 
 		} else if openBrackets > 0 {
@@ -71,7 +72,7 @@ func errorsDecoding(input string) error {
 	}
 
 	if openBrackets > 0 {
-		return fmt.Errorf("\033[31merror: found '[' without matching ']'\033[0m")
+		return fmt.Errorf("Error: Found '[' without matching ']'")
 	}
 
 	return nil
@@ -143,7 +144,10 @@ func handleDecoder(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		// Render the template with the error
+		tmpl, _ := template.ParseFiles("decode.html")
+		w.WriteHeader(http.StatusBadRequest)
+		tmpl.Execute(w, PageData{ErrorMessage: "Error parsing form data"})
 		return
 	}
 
@@ -151,7 +155,10 @@ func handleDecoder(w http.ResponseWriter, r *http.Request) {
 
 	// Check for malformed encoded strings
 	if err := errorsDecoding(encodedString); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// Render the template with the error
+		tmpl, _ := template.ParseFiles("decode.html")
+		w.WriteHeader(http.StatusBadRequest)
+		tmpl.Execute(w, PageData{ErrorMessage: err.Error()})
 		return
 	}
 
@@ -164,6 +171,7 @@ func handleDecoder(w http.ResponseWriter, r *http.Request) {
 	// Render the template with the decoded result
 	tmpl, err := template.ParseFiles("decode.html")
 	if err != nil {
+		// This is a server error, so we'll still use http.Error for this
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
 		return
 	}
@@ -206,14 +214,20 @@ func handleEncode(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		// Render the template with the error
+		tmpl, _ := template.ParseFiles("index.html")
+		w.WriteHeader(http.StatusBadRequest)
+		tmpl.Execute(w, PageData{ErrorMessage: "Error parsing form data"})
 		return
 	}
 
 	input := r.FormValue("input")
 
 	if err := errorsEncoding(input); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// Render the template with the error
+		tmpl, _ := template.ParseFiles("index.html")
+		w.WriteHeader(http.StatusBadRequest)
+		tmpl.Execute(w, PageData{ErrorMessage: err.Error()})
 		return
 	}
 
@@ -225,6 +239,7 @@ func handleEncode(w http.ResponseWriter, r *http.Request) {
 	// Render the template with the encoded result
 	tmpl, err := template.ParseFiles("index.html")
 	if err != nil {
+		// This is a server error, so we'll still use http.Error for this
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
 		return
 	}
