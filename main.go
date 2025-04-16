@@ -27,6 +27,11 @@ func errorsDecoding(input string) error {
 		return fmt.Errorf("Error: Input is empty, please provide some text to decode")
 	}
 
+	// Check if input contains brackets (required for decoding)
+	if !strings.Contains(input, "[") || !strings.Contains(input, "]") {
+		return fmt.Errorf("Error: Input must contain at least one set of brackets [...], eg [8 #]")
+	}
+
 	var openBrackets int
 	var bracketContent strings.Builder
 
