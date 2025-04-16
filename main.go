@@ -122,8 +122,20 @@ func handleMainPage(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, PageData{})
 }
 
-// handleDecoder handles POST requests to /decoder endpoint
+// handleDecoder handles GET and POST requests to /decoder endpoint
 func handleDecoder(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		tmpl, err := template.ParseFiles("decode.html")
+		if err != nil {
+			http.Error(w, "Error loading template", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		tmpl.Execute(w, PageData{})
+		return
+	}
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -149,10 +161,15 @@ func handleDecoder(w http.ResponseWriter, r *http.Request) {
 	// Remove only leading and trailing newlines, but preserve spaces
 	decoded = strings.Trim(decoded, "\n")
 
-	// The WriteHeader must be called before any Write operation
-	w.Header().Set("Content-Type", "text/plain")
+	// Render the template with the decoded result
+	tmpl, err := template.ParseFiles("decode.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusAccepted)
-	w.Write([]byte(decoded))
+	tmpl.Execute(w, PageData{DecodedResult: decoded})
 }
 
 func handleEncodePage(w http.ResponseWriter, r *http.Request) {
@@ -177,6 +194,7 @@ func handleDecodePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, PageData{})
 }
 
@@ -204,46 +222,20 @@ func handleEncode(w http.ResponseWriter, r *http.Request) {
 	// Remove only leading and trailing newlines, but preserve spaces
 	encoded = strings.Trim(encoded, "\n")
 
+	// Render the template with the encoded result
 	tmpl, err := template.ParseFiles("index.html")
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
 		return
 	}
 
+	w.WriteHeader(http.StatusAccepted)
 	tmpl.Execute(w, PageData{EncodedResult: encoded})
 }
 
 func handleDecode(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, "Error parsing form", http.StatusBadRequest)
-		return
-	}
-
-	input := r.FormValue("input")
-
-	if err := errorsDecoding(input); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	decoded := decodeArt(input)
-
-	// Remove only leading and trailing newlines, but preserve spaces
-	decoded = strings.Trim(decoded, "\n")
-
-	tmpl, err := template.ParseFiles("decode.html")
-	if err != nil {
-		http.Error(w, "Error loading template", http.StatusInternalServerError)
-		return
-	}
-
-	tmpl.Execute(w, PageData{DecodedResult: decoded})
+	// Redirect to the decoder endpoint
+	http.Redirect(w, r, "/decoder", http.StatusSeeOther)
 }
 
 // Handler for copying encoded result
