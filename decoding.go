@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func decodeArt(input string) string {
@@ -47,6 +48,48 @@ func findRepeatingPattern(line string, startPos int) (pattern string, count int,
 		maxPatternLen = len(line) - startPos
 	}
 
+	// First check for single character repetition including Unicode characters
+	if startPos < len(line) {
+		// Get the rune at the current position
+		r, size := utf8.DecodeRuneInString(line[startPos:])
+		if r != utf8.RuneError {
+			// Count how many times this rune repeats
+			runeCount := 1
+			j := startPos + size
+
+			for j < len(line) {
+				nextR, nextSize := utf8.DecodeRuneInString(line[j:])
+				if nextR != r {
+					break
+				}
+				runeCount++
+				j += nextSize
+			}
+
+			// If we have a significant single character repetition, prefer it
+			if runeCount > 1 {
+				return string(r), runeCount, j
+			}
+		}
+	}
+
+	// Check for special paired patterns like ^|^|^|^ or | | |
+	if startPos+2 <= len(line) {
+		// Try to find pattern like ^|^|^|^ (two-character pattern)
+		twoCharPattern := line[startPos : startPos+2]
+		pairCount := 1
+		j := startPos + 2
+
+		for j+2 <= len(line) && line[j:j+2] == twoCharPattern {
+			pairCount++
+			j += 2
+		}
+
+		if pairCount > 1 {
+			return twoCharPattern, pairCount, j
+		}
+	}
+
 	bestPattern := ""
 	bestCount := 0
 	bestEndPos := startPos
@@ -59,11 +102,6 @@ func findRepeatingPattern(line string, startPos int) (pattern string, count int,
 		}
 
 		pattern := line[startPos : startPos+patternLen]
-
-		// Skip single-character repeated patterns (handled separately)
-		if len(strings.TrimSpace(pattern)) == 1 {
-			continue
-		}
 
 		// Skip patterns that are just spaces
 		if strings.TrimSpace(pattern) == "" {
@@ -107,16 +145,40 @@ func findRepeatingPattern(line string, startPos int) (pattern string, count int,
 }
 
 func encodeArt(input string) string {
+	// Only trim newlines, preserve spaces
+	input = strings.Trim(input, "\n")
 	lines := strings.Split(input, "\n")
 	var result []string
 
 	for _, line := range lines {
-		if line == "" {
-			continue
-		}
-
 		var encoded strings.Builder
 		i := 0
+
+		// Special case for lines with all the same character (like "######")
+		if len(line) > 0 {
+			// Check for a homogeneous line (all same character)
+			r, size := utf8.DecodeRuneInString(line)
+			if r != utf8.RuneError {
+				allSame := true
+				j := size
+
+				for j < len(line) {
+					nextR, nextSize := utf8.DecodeRuneInString(line[j:])
+					if nextR != r {
+						allSame = false
+						break
+					}
+					j += nextSize
+				}
+
+				if allSame {
+					count := utf8.RuneCountInString(line)
+					encoded.WriteString(fmt.Sprintf("[%d %s]", count, string(r)))
+					result = append(result, encoded.String())
+					continue
+				}
+			}
+		}
 
 		// Count leading spaces
 		spaceCount := 0
@@ -130,52 +192,19 @@ func encodeArt(input string) string {
 
 		// Process the rest of the line
 		for i < len(line) {
-			// First look for multi-character repeating patterns
-			pattern, patternCount, newPos := findRepeatingPattern(line, i)
-			if patternCount > 0 {
-				encoded.WriteString(fmt.Sprintf("[%d %s]", patternCount, pattern))
+			// Look for repeating patterns
+			pattern, count, newPos := findRepeatingPattern(line, i)
+			if count > 0 {
+				encoded.WriteString(fmt.Sprintf("[%d %s]", count, pattern))
 				i = newPos
 				continue
 			}
 
-			// Check for repeating patterns like |^ or |
-			if i+1 < len(line) && (line[i] == '|' || line[i] == '^') {
-				pattern := ""
-				count := 0
-
-				// Try to find repeating pattern
-				if i+1 < len(line) {
-					pattern = line[i : i+2]
-					for j := i; j < len(line)-1; j += 2 {
-						if j+1 >= len(line) || line[j:j+2] != pattern {
-							break
-						}
-						count++
-					}
-				}
-
-				if count > 2 {
-					encoded.WriteString(fmt.Sprintf("[%d %s]", count, pattern))
-					i += count * 2
-					continue
-				}
-			}
-
-			// Handle regular character sequences
-			char := line[i]
-			count := 1
-			j := i + 1
-			for j < len(line) && line[j] == char {
-				count++
-				j++
-			}
-
-			if count >= 2 || char == '#' {
-				encoded.WriteString(fmt.Sprintf("[%d %c]", count, char))
-			} else {
-				encoded.WriteByte(char)
-			}
-			i = j
+			// No repeating pattern found, just output the current character
+			// Ensure we correctly handle Unicode characters by getting rune
+			r, size := utf8.DecodeRuneInString(line[i:])
+			encoded.WriteString(string(r))
+			i += size
 		}
 
 		result = append(result, encoded.String())
