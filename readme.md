@@ -32,8 +32,6 @@ A web application for encoding and decoding ASCII art. This tool helps compress 
 
 ## Building the Project
 
-No build step is required as this is a Go application that can be run directly.
-
 The go.mod file is not included in this repository, so you'll need to set up the Go module before running the application:
 
 ```
