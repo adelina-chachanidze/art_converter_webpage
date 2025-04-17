@@ -40,13 +40,81 @@ func decodeArt(input string) string {
 	return result
 }
 
+// Find the best repeating pattern at the current position
+func findRepeatingPattern(line string, startPos int) (pattern string, count int, endPos int) {
+	maxPatternLen := 30 // Maximum pattern length to search for
+	if startPos+maxPatternLen > len(line) {
+		maxPatternLen = len(line) - startPos
+	}
+
+	bestPattern := ""
+	bestCount := 0
+	bestEndPos := startPos
+	bestSavings := 0
+
+	// Try patterns of different lengths
+	for patternLen := 2; patternLen <= maxPatternLen; patternLen++ {
+		if startPos+patternLen > len(line) {
+			continue
+		}
+
+		pattern := line[startPos : startPos+patternLen]
+
+		// Skip single-character repeated patterns (handled separately)
+		if len(strings.TrimSpace(pattern)) == 1 {
+			continue
+		}
+
+		// Skip patterns that are just spaces
+		if strings.TrimSpace(pattern) == "" {
+			continue
+		}
+
+		// Count how many times this pattern repeats
+		count := 1
+		pos := startPos + patternLen
+
+		for pos+patternLen <= len(line) && line[pos:pos+patternLen] == pattern {
+			count++
+			pos += patternLen
+		}
+
+		// If pattern repeats more than once, calculate savings
+		if count >= 2 {
+			// Calculate space saved by using [n pattern] format
+			// Original: patternLen * count
+			// Encoded: 4 + len(count) + patternLen (for [n pattern])
+			originalSize := patternLen * count
+			encodedSize := 4 + len(strconv.Itoa(count)) + patternLen
+			savings := originalSize - encodedSize
+
+			// Check if this is the best pattern so far
+			if savings > bestSavings || (savings == bestSavings && patternLen < len(bestPattern)) {
+				bestPattern = pattern
+				bestCount = count
+				bestEndPos = pos
+				bestSavings = savings
+			}
+		}
+	}
+
+	// If we found a good pattern, return it
+	if bestSavings > 0 {
+		return bestPattern, bestCount, bestEndPos
+	}
+
+	return "", 0, startPos
+}
+
 func encodeArt(input string) string {
-	// Only trim newlines, preserve spaces
-	input = strings.Trim(input, "\n")
 	lines := strings.Split(input, "\n")
 	var result []string
 
 	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
 		var encoded strings.Builder
 		i := 0
 
@@ -62,7 +130,15 @@ func encodeArt(input string) string {
 
 		// Process the rest of the line
 		for i < len(line) {
-			// Check for repeating patterns first
+			// First look for multi-character repeating patterns
+			pattern, patternCount, newPos := findRepeatingPattern(line, i)
+			if patternCount > 0 {
+				encoded.WriteString(fmt.Sprintf("[%d %s]", patternCount, pattern))
+				i = newPos
+				continue
+			}
+
+			// Check for repeating patterns like |^ or |
 			if i+1 < len(line) && (line[i] == '|' || line[i] == '^') {
 				pattern := ""
 				count := 0
