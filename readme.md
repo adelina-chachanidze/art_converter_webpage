@@ -10,7 +10,7 @@ A web application for encoding and decoding ASCII art. This tool helps compress 
 - Recognizes and efficiently compresses complex patterns
 - Save encoded/decoded results as .txt files
 - Web interface with intuitive design for easy use
-- Copy encoded/decoded results with a single click
+- Supports both one- and multi-line inputs
 
 ## Requirements
 
@@ -34,6 +34,7 @@ A web application for encoding and decoding ASCII art. This tool helps compress 
 
 The go.mod file is not included in this repository, so you'll need to set up the Go module before running the application:
 
+
 # Initialize a new Go module
 ```
 go mod init art
@@ -44,7 +45,7 @@ go mod init art
 Start the server with:
 
 ```
-go run .
+go run main.go decoding.go
 ```
 
 The server will start at http://localhost:8080. You should see the following output:
@@ -54,37 +55,40 @@ Server is running at http://localhost:8080
 Press Ctrl+C to stop the server...
 ```
 
-To end the session press Ctrl+C
-
 ## Usage
 
 1. **Encoding ASCII Art**:
    - Visit http://localhost:8080/
-   - Paste your ASCII art in the input field
+   - Paste or type your ASCII art in the input field
    - Click "Encode"
    - The encoded result will appear in the output field
-   - Use the "Copy" button to copy the encoded result
-   - Click "Save as TXT" to download the result as a text file
+   - Click "Save as .txt" to download the result as a text file
 
 2. **Decoding**:
    - Visit http://localhost:8080/decoder or click "Decoder" in the navigation
-   - Paste the encoded art in the input field
+   - Paste or type the encoded art in the input field
+   - Input must be [number space symbol(s)], eg [8 #h]; otherwise the error will appear
    - Click "Decode"
    - The original ASCII art will appear in the output field
-   - Use the "Copy" button to copy the decoded result
-   - Click "Save as TXT" to download the result as a text file
+   - Click "Save as .txt" to download the result as a text file
+
+## Test Examples
+
+The repository includes a `tests` folder with several examples you can try:
+
+- Files with `.art.txt` extension contain the original ASCII art
+- Files with `.encoded.txt` extension contain the encoded version
+
+You can use these examples to test the application's encoding and decoding capabilities.
 
 ## User Interface
 
 The application features a clean, modern user interface with:
 
-- Responsive design that works on both desktop and mobile devices
+- Responsive design
 - Intuitive navigation between encoder and decoder pages
 - Large text areas for easy input and viewing of results
 - Error messages that provide clear guidance on fixing invalid inputs
-- Syntax highlighting for encoded patterns
-- Light/dark mode toggle to reduce eye strain during extended use
-- Real-time feedback as you interact with the application
 
 ## Encoding Format
 
@@ -113,7 +117,3 @@ Built with:
 ## Credits
 
 - Background image by [Maxim Berg](https://unsplash.com/@maxberg) on [Unsplash](https://unsplash.com/photos/a-blurry-image-of-a-multicolored-background-PiFzbqDClGk)
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
