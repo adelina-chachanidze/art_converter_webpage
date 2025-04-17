@@ -1,117 +1,111 @@
-# ASCII Art Encoder/Decoder
+# Art Encoder/Decoder
 
-A powerful tool that helps you create and manipulate text-based art through a special compression notation. This application provides both encoding (compression) and decoding (expansion) functionality for ASCII art with a clean, modern web interface.
+A web application for encoding and decoding ASCII art. This tool helps compress ASCII art by identifying repeating patterns and representing them in a compact form.
 
 ## Features
 
-- **Encode Mode**: Converts repetitive ASCII art patterns into a compressed format
-- **Decode Mode**: Expands compressed patterns back into full ASCII art
-- **Modern Web Interface**: Clean, responsive design with intuitive controls
-- **Toggle Switch**: Easy switching between encode and decode modes
-- **Copy to File**: One-click option to save output as a text file
-- **Multi-line Support**: Process multiple lines of art at once
-- **Error Handling**: Robust error checking for invalid patterns
+- Encode ASCII art into a compressed format
+- Decode compressed format back to ASCII art
+- Supports a wide range of symbols and Unicode characters
+- Recognizes and efficiently compresses complex patterns
+- Save encoded/decoded results as .txt files
+- Web interface with intuitive design for easy use
+- Copy encoded/decoded results with a single click
+
+## Requirements
+
+- Go 1.23.2 or higher
 
 ## Installation
 
-Ensure you have Go installed on your system, then:
+1. Clone this repository:
+   ```
+   git clone https://gitea.koodsisu.fi/adelinachachanidze/art.git
+   cd art
+   ```
 
-```bash
-# Clone the repository
-git clone https://gitea.koodsisu.fi/adelinachachanidze/art.git
-cd art
+2. Ensure you have Go installed:
+   ```
+   go version
+   ```
+   The output should show Go version 1.23.2 or higher.
 
-# Run the web server
+## Building the Project
+
+No build step is required as this is a Go application that can be run directly.
+
+The go.mod file is not included in this repository, so you'll need to set up the Go module before running the application:
+
+```
+# Initialize a new Go module
+go mod init art
+
+## Running the Server
+
+Start the server with:
+
+```
 go run .
 ```
 
-Then open your browser and navigate to: http://localhost:8080
+The server will start at http://localhost:8080. You should see the following output:
+
+```
+Server is running at http://localhost:8080
+Press Ctrl+C to stop the server...
+```
+
+To end the session press Ctrl+C
 
 ## Usage
 
-The web interface offers an intuitive way to work with ASCII art:
+1. **Encoding ASCII Art**:
+   - Visit http://localhost:8080/
+   - Paste your ASCII art in the input field
+   - Click "Encode"
+   - The encoded result will appear in the output field
+   - Use the "Copy" button to copy the encoded result
+   - Click "Save as TXT" to download the result as a text file
 
-1. **Toggle between Encode/Decode**: Use the toggle switch at the top to choose mode
-2. **Input**: Enter your ASCII art or compressed notation in the text area
-3. **Process**: Click the "Encode" or "Decode" button depending on your mode
-4. **Output**: View the result in the output area below
-5. **Copy to File**: Click "Copy" in the top-right corner of the output to save as a text file
+2. **Decoding**:
+   - Visit http://localhost:8080/decoder or click "Decoder" in the navigation
+   - Paste the encoded art in the input field
+   - Click "Decode"
+   - The original ASCII art will appear in the output field
+   - Use the "Copy" button to copy the decoded result
+   - Click "Save as TXT" to download the result as a text file
 
-### Encoding Format
+## User Interface
 
-When encoding, the tool automatically detects repeating patterns and converts them into a compressed format:
+The application features a clean, modern user interface with:
 
-- Repeated characters are converted to `[N X]` format where:
-  - `N` is the number of repetitions
-  - `X` is the character or pattern to repeat
-- Leading spaces are automatically compressed
-- Special patterns (like `|` or `^`) are detected and encoded
-- Sequences of 3 or more identical characters are compressed
+- Responsive design that works on both desktop and mobile devices
+- Intuitive navigation between encoder and decoder pages
+- Large text areas for easy input and viewing of results
+- Error messages that provide clear guidance on fixing invalid inputs
+- Syntax highlighting for encoded patterns
+- Light/dark mode toggle to reduce eye strain during extended use
+- Real-time feedback as you interact with the application
 
-### Decoding Format
+## Encoding Format
 
-The tool understands the following notation:
+The encoding format uses brackets to represent repeated patterns:
+- `[n c]` where `n` is the number of repetitions and `c` is the character or pattern to repeat
+- Example: `[5 #]` expands to `#####`
+- Example: `[3 ^|]` expands to `^|^|^|`
+- Example: `[4 ♥♦]` expands to `♥♦♥♦♥♦♥♦`
 
-- `[N X]`: Repeat character/pattern X exactly N times
-- Characters outside brackets are printed as-is
-- Spaces can be encoded as `[N  ]` (two spaces after N)
-
-## Examples
-
-### Basic Example
-```bash
-# Input (Decode Mode):
-[5 #][5 -_]-[5 #]
-
-# Output:
-#####-_-_-_-_-_-#####
-```
-
-### Complex Example
-```bash
-# Input (Encode Mode):
-AAAAAAA___BBBBB
-
-# Output:
-[7 A][3 _][5 B]
-```
-
-### Multi-line Art Example
-```bash
-# Input (Decode Mode):
-[10  ]___
-[10  ]\\ \
-[10  ]\\ `\
-[5  ]____[5  ]\\  \
-
-# Output:
-          ___
-          \\ \
-          \\ `\
-     ____     \\  \
-```
-
-## Error Handling
-
-The tool includes validation for:
-- Empty input
-- Unmatched brackets
-- Invalid number format
-- Missing arguments in brackets
-- Proper bracket syntax
-
-## Web Interface
-
-The web interface features:
-- Clean, modern design with a responsive layout
-- Intuitive toggle switch to change between modes
-- Syntax highlighting for input and output
-- One-click copy functionality to save results as text files
-- Clear error notifications for invalid input
+The encoder is smart enough to detect:
+- Simple character repetition (like `-----`)
+- Pattern repetition (like `^|^|^|^|`)
+- Mixed symbol sequences with optimal compression
+- Unicode characters and special symbols
+- Space patterns with proper preservation
 
 ## Technical Details
 
 Built with:
+
 - Go backend for processing ASCII art
 - HTML/CSS for the user interface
 - Server-side rendering with Go templates
@@ -120,3 +114,7 @@ Built with:
 ## Credits
 
 - Background image by [Maxim Berg](https://unsplash.com/@maxberg) on [Unsplash](https://unsplash.com/photos/a-blurry-image-of-a-multicolored-background-PiFzbqDClGk)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
